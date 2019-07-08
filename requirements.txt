@@ -1,2 +1,3 @@
 django
 Image
+python-telegram-bot
