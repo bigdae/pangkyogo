@@ -8,7 +8,6 @@ from myapp.models import Document
 from myapp.forms import DocumentForm
 from PIL import Image
 import telegram
-import pytesseract
 import io
 import os
 from google.cloud import vision
