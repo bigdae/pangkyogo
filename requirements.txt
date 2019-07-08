@@ -1,1 +1,1 @@
-pip django
+pip install django
