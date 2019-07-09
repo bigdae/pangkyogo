@@ -31,7 +31,8 @@ ALLOWED_HOSTS = ['localhost',
 'http://localhost:8000/myapp',
 'http://127.0.0.1', 
 'https://pangkyogo.herokuapp.com',
-'.herokuapp.com'
+'.herokuapp.com',
+'https://pangkyogo.herokuapp.com/myapp'
 ]
 
 
