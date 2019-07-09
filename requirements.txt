@@ -6,3 +6,5 @@ google-cloud-vision
 freeze 
 psycopg2==2.7.1
 gunicorn 
+dj-database-url
+psycopg2-binary
