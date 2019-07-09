@@ -31,8 +31,7 @@ ALLOWED_HOSTS = ['localhost',
 'http://localhost:8000/myapp',
 'http://127.0.0.1', 
 'https://pangkyogo.herokuapp.com',
-'.herokuapp.com',
-'https://pangkyogo.herokuapp.com/myapp'
+'.herokuapp.com'
 ]
 
 
@@ -53,9 +52,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
- #   'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
@@ -120,7 +119,7 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/static/'
 
-import dj_database_url 
-db_from_env = dj_database_url.config(conn_max_age=500) 
-DATABASES['default'].update(db_from_env)
+#import dj_database_url 
+#db_from_env = dj_database_url.config(conn_max_age=500) 
+#DATABASES['default'].update(db_from_env)
 
