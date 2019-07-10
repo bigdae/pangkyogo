@@ -10,7 +10,7 @@
         {% if documents %}
             <ul>
                 {% for document in documents %}
-                    <li><a href="{{ document.docfile.url }}">{{ document.docfile.name }} - {{ document.place }}</a></li>
+                    <li><a href="{{ document.docfile.url }}">name:{{ document.name }},  place:{{ document.place }},   time:{{ document.time|date:'h:i:s' }},   dup:{{ document.dup}}</a> [삭제]</li>
                 {% endfor %}
             </ul>
         {% else %}
@@ -28,8 +28,12 @@
                 {{ form.docfile.errors }}
                 {{ form.docfile }}
             </p>
-
             <p><input type="submit" value="Upload"/></p>
+            {% if dup == 'Y' %} 
+            <p>기존에 등록된 정보가 있습니다</p>
+            {% endif %}
+            <p>{{text_message}}</p>
+            <p><input type="button" value="푸쉬알림"/></p>
         </form>
     </body>
 
