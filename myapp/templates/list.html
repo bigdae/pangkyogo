@@ -1,21 +1,49 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Minimal Django File Upload Example</title>
-    </head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <body>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+        <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">이름</th>
+                    <th scope="col">장소</th>
+                    <th scope="col">시간</th>
+                    <th scope="col">사진</th>
+                    <th scope="col">중복여부</th>
+                    <th scope="col">삭제</th>
+                  </tr>
+                </thead>
+                <tbody>                      
         <!-- List of uploaded documents -->
         {% if documents %}
-            <ul>
+
                 {% for document in documents %}
-                    <li><a href="{{ document.docfile.url }}">name:{{ document.name }},  place:{{ document.place }},   time:{{ document.time|date:'h:i:s' }},   dup:{{ document.dup}}</a> [삭제]</li>
+                <tr>
+                    <th scope="row">{{ document.name }}</th>
+                    <td>{{ document.place }}</td>
+                    <td>{{ document.time|date:'h:i:s' }}</td>
+                    <td><a href="{{ document.docfile.url }}">보기</a></td>
+                    <td>{{ document.dup}}</td>
+                    <td><a href="{% url 'delete' document.id %}">[삭제]</a></td>
+                </tr>
                 {% endfor %}
-            </ul>
         {% else %}
-            <p>No documents.</p>
-        {% endif %}
+                <tr>
+                    <th scope="row" colspan="6">{{ document.name }}</th>
+                </tr>
+    {% endif %}
+
+                </tbody>
+            </table>        
 
         <!-- Upload form. Note enctype attribute! -->
         <form action="{% url "list" %}" method="post" enctype="multipart/form-data">
@@ -35,6 +63,11 @@
             <p>{{text_message}}</p>
             <p><input type="button" value="푸쉬알림"/></p>
         </form>
-    </body>
-
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
 </html>
+
