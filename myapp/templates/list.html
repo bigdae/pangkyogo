@@ -17,8 +17,6 @@
                     <th scope="col">이름</th>
                     <th scope="col">장소</th>
                     <th scope="col">시간</th>
-                    <th scope="col">사진</th>
-                    <th scope="col">중복여부</th>
                     <th scope="col">삭제</th>
                   </tr>
                 </thead>
@@ -28,11 +26,9 @@
 
                 {% for document in documents %}
                 <tr>
-                    <th scope="row">{{ document.name }}</th>
+                    <th scope="row"><a href="{{ document.docfile.url }}">{{ document.name }}</a></th>
                     <td>{{ document.place }}</td>
                     <td>{{ document.time|date:'h:i:s' }}</td>
-                    <td><a href="{{ document.docfile.url }}">보기</a></td>
-                    <td>{{ document.dup}}</td>
                     <td><a href="{% url 'delete' document.id %}">[삭제]</a></td>
                 </tr>
                 {% endfor %}
