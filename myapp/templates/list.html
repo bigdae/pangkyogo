@@ -9,56 +9,126 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
     <title>Hello, world!</title>
+    <script>
+
+
+      function upload(){
+        document.form.action = "{% url "extract" %}";
+        document.form.lastmodified.value = formatDate(new Date(document.form.docfile.files[0].lastModified))
+        documet.form.submit()
+      }
+
+      function formatDate(date) {
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        var h = date.getHours();
+        var i = date.getMinutes();
+        var s = date.getSeconds();
+        return date.getFullYear()+'-'+(m>9?m:'0'+m)+'-'+(d>9?d:'0'+d)+' '+(h>9?h:'0'+h)+':'+(i>9?i:'0'+i)+':'+(s>9?s:'0'+s);
+      }      
+    </script>
+
+    <style>
+        html { font-size: 13px; }
+    </style>    
   </head>
-  <body>
-        <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">이름</th>
-                    <th scope="col">장소</th>
-                    <th scope="col">시간</th>
-                    <th scope="col">삭제</th>
-                  </tr>
-                </thead>
-                <tbody>                      
-        <!-- List of uploaded documents -->
-        {% if documents %}
+  <body class="bg-light">
 
-                {% for document in documents %}
-                <tr>
-                    <th scope="row"><a href="{{ document.docfile.url }}">{{ document.name }}</a></th>
-                    <td>{{ document.place }}</td>
-                    <td>{{ document.time|date:'h:i:s' }}</td>
-                    <td><a href="{% url 'delete' document.id %}">[삭제]</a></td>
-                </tr>
-                {% endfor %}
-        {% else %}
-                <tr>
-                    <th scope="row" colspan="6">{{ document.name }}</th>
-                </tr>
-    {% endif %}
+      <div class="container">
+          <div class="py-5 text-center">
+            <a href= "{% url "list" %}">
+            <img class="d-block mx-auto mb-4" src="https://assets.pokemon.com/assets/cms2/img/misc/gus/buttons/logo-pokemon-79x45.png">
+          </a>
+            <h2>Pokemon Alert Manager</h2>
+          </div>
+          <div class="row">    
+            <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">이름</th>
+                        <th scope="col">장소</th>
+                        <th scope="col">시간</th>
+                        <th scope="col">삭제</th>
+                      </tr>
+                    </thead>
+                    <tbody>                      
+                    {% if documents %}
 
-                </tbody>
-            </table>        
+                      {% for document in documents %}
+                      <tr>
+                          <th scope="row"><a href="{{ document.docfile.url }}">{{ document.name }}</a></th>
+                          <td>{{ document.place }}</td>
+                          <td>{{ document.time_calc|date:'H:i:s' }}</td>
+                          <td><a href="{% url 'update' document.id %}">[수정]</a><a href="{% url 'delete' document.id %}">[삭제]</a></td>
+                      </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                          <td scope="row" colspan="6" class="text-center">no rows</td>
+                      </tr>
+                    {% endif %}
 
-        <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url "list" %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <p>{{ form.non_field_errors }}</p>
+                      </tbody>
+                  </table>        
 
-            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+            <!-- Upload form. Note enctype attribute! -->
+            <form name="form" action="{% url "extract" %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <p>{{ form.non_field_errors }}</p>
 
-            <p>
-                {{ form.docfile.errors }}
-                {{ form.docfile }}
-            </p>
-            <p><input type="submit" value="Upload"/></p>
-            {% if dup == 'Y' %} 
-            <p>기존에 등록된 정보가 있습니다</p>
-            {% endif %}
-            <p>{{text_message}}</p>
-            <p><input type="button" value="푸쉬알림"/></p>
-        </form>
+                <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+
+                <p>
+                    {{ form.docfile.errors }}
+                    {{ form.docfile }}
+                </p>
+                <p><input type="submit" value="업로드" onclick="upload()" class="btn btn-primary"/></p>
+                {% if dup == 'Y' %} 
+                <p>기존에 등록된 정보가 있습니다</p>
+                {% endif %}
+                {% if newdoc %}
+
+
+                <div class="col-md-8 order-md-1">
+                  <h4 class="mb-3 text-center">추출정보 확인</h4>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="name">이름</label>
+                      <input name="name" type="text" class="form-control" id="name" placeholder="" value="{{ newdoc.name }}" required>
+                      <div class="invalid-feedback">
+                        이름은 필수값입니다.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="place">장소</label>
+                      <input name="place" type="text" class="form-control" id="place" placeholder="" value="{{ newdoc.place }}" required>
+                      <div class="invalid-feedback">
+                        장소는 필수값입니다.
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="time_text">종료시간</label>
+                      <input name="time_text" type="text" class="form-control" id="time_text" placeholder="" value="{{ newdoc.time_text }}" required>
+                      <div class="invalid-feedback">
+                        종료 시간 필수값입니다.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <input type="hidden" name="id" value="{{newdoc.id}}"/>
+                <p><input type="submit" value="저장" class="btn btn-primary btn-lg btn-block"  onclick="save{{newdoc.id}}()"/></p>
+
+                <script>
+                      function save{{newdoc.id}}(){
+                        document.form.action = "{% url "update" newdoc.id %}"
+                        document.form.submit()
+                      }
+                </script>                
+                {% endif %}
+                <input type="hidden" name="lastmodified" value=""/>
+            </form>
+        </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

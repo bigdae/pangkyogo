@@ -8,5 +8,7 @@ class Document(models.Model):
     name  = models.TextField(blank=True, null=True)
     replace_name = models.TextField(blank=True, null=True)
     place = models.TextField(blank=True, null=True)
+    time_text = models.TextField(blank=True, null=True)
     time  = models.DateTimeField(blank=True, null=True)
+    time_calc  = models.DateTimeField(blank=True, null=True)
     dup   = models.TextField(blank=True, null=True)

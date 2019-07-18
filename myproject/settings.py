@@ -29,8 +29,14 @@ DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
 ALLOWED_HOSTS = ['localhost',
 'http://localhost:8000/myapp',
+'http://192.168.0.111:8000/myapp',
+'192.168.0.111',
 'http://127.0.0.1', 
 'https://pangkyogo.herokuapp.com',
+'https://bigdae2.iptime.org:8000',
+'http://bigdae2.iptime.org:8000',
+'bigdae2.iptime.org:8000',
+'bigdae2.iptime.org',
 '.herokuapp.com'
 ]
 
@@ -109,7 +115,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
