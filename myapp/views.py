@@ -92,7 +92,8 @@ def extractText(request):
             # extract text
             location, egg_time, monster_time, monster_name = "", "", "", ""
             time_arr = []
-            now_datetime = datetime.datetime.strptime(request.POST['lastmodified'], '%Y-%m-%d %H:%M:%S')
+            time = datetime.datetime.strptime(request.POST['lastmodified'], '%Y-%m-%d %H:%M:%S')
+            time_calc = time
             # image resize
             img = Image.open(request.FILES['docfile'])
             new_height = 1280
@@ -109,18 +110,20 @@ def extractText(request):
                 monster_name = text_within(document,0,150,1200,460)
                 if monster_time.count(":") > 1 :
                   time_arr =  [int(i) for i in monster_time.split(":")]
-                  now_datetime_calc = now_datetime + datetime.timedelta(minutes=time_arr[1])
-                  now_datetime_calc = now_datetime + datetime.timedelta(seconds=time_arr[2])
+                  time_calc = time_calc + datetime.timedelta(hours=time_arr[0])
+                  time_calc = time_calc + datetime.timedelta(minutes=time_arr[1])
+                  time_calc = time_calc + datetime.timedelta(seconds=time_arr[2])
             else:
                 if egg_time.count(":") > 1 :
                   time_arr =  [int(i) for i in egg_time.split(":")]
-                  now_datetime_calc = now_datetime + datetime.timedelta(minutes=45)
-                  now_datetime_calc = now_datetime + datetime.timedelta(minutes=time_arr[1])
-                  now_datetime_calc = now_datetime + datetime.timedelta(seconds=time_arr[2])
+                  time_calc = time_calc + datetime.timedelta(minutes=45)
+                  time_calc = time_calc + datetime.timedelta(hours=time_arr[0])
+                  time_calc = time_calc + datetime.timedelta(minutes=time_arr[1])
+                  time_calc = time_calc + datetime.timedelta(seconds=time_arr[2])
            
             if monster_name == "":
                 monster_name = "EGG"
-            newdoc = Document(docfile = request.FILES['docfile'], name=monster_name, place=location, time=now_datetime, time_calc=now_datetime_calc, time_text=":".join(str(e) for e in time_arr))
+            newdoc = Document(docfile = request.FILES['docfile'], name=monster_name, place=location, time=time, time_calc=time_calc, time_text=":".join(str(e) for e in time_arr))
 
             if len(Document.objects.filter(time__gte=datetime.datetime.now()).filter(place=location)) > 0:
                 newdoc.dup = "Y"
@@ -137,20 +140,22 @@ def update(request, id):
   if request.method == 'POST':
     id = request.POST['id']
     name = request.POST['name'].upper()
-    now_datetime = Document.objects.get(id=id).time
-
-    time = request.POST['time_text']
-    time_arr =  [int(i) for i in time.split(":")]
+    time = Document.objects.get(id=id).time
+    
+    time_text = request.POST['time_text']
+    time_arr =  [int(i) for i in time_text.split(":")]
     if name.startswith("EGG"):
-      now_datetime_calc = now_datetime + datetime.timedelta(minutes=45)
-    now_datetime_calc = now_datetime + datetime.timedelta(minutes=time_arr[1])
-    now_datetime_calc = now_datetime + datetime.timedelta(seconds=time_arr[2])
+      time = time + datetime.timedelta(minutes=45)
+    time = time + datetime.timedelta(hours=time_arr[0])
+    time = time + datetime.timedelta(minutes=time_arr[1])
+    time = time + datetime.timedelta(seconds=time_arr[2])
 
     document = Document.objects.get(id=id)
     document.name = request.POST['name']
     document.place = request.POST['place']
-    document.time_calc = now_datetime_calc
-    document.save()
+    document.time_calc = time
+    document.time_text = request.POST['time_text']
+    print(document.save())
     newdoc = None
   else:
     form = DocumentForm()
