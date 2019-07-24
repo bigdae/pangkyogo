@@ -18,6 +18,11 @@
         documet.form.submit()
       }
 
+      function save(url){
+        document.form.action = url
+        document.form.submit()
+      }      
+
       function formatDate(date) {
         var m = date.getMonth()+1;
         var d = date.getDate();
@@ -117,14 +122,8 @@
                 </div>
 
                 <input type="hidden" name="id" value="{{newdoc.id}}"/>
-                <p><input type="submit" value="저장" class="btn btn-primary btn-lg btn-block"  onclick="save{{newdoc.id}}()"/></p>
+                <p><input type="submit" value="저장" class="btn btn-primary btn-lg btn-block"  onclick="save('{% url "update" newdoc.id %}')"/></p>
 
-                <script>
-                      function save{{newdoc.id}}(){
-                        document.form.action = "{% url "update" newdoc.id %}"
-                        document.form.submit()
-                      }
-                </script>                
                 {% endif %}
                 <input type="hidden" name="lastmodified" value=""/>
             </form>

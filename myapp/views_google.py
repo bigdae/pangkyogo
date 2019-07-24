@@ -16,17 +16,11 @@ import datetime
 import re
 from django.core.files.storage import FileSystemStorage
 import time
-import pytesseract
-import cv2 
-import matplotlib.pyplot as plt
 import numpy as np
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from io import BytesIO
 
 MONSTER = "MONSTER"
 EGG     = "EGG"
 KNOWN   = "KNOWN"
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
 
 def sendMessage():
     my_token = '727599178:AAH_ksTAfbHK7PKt4fJq28Dj91slG3BVPXQ'
@@ -41,36 +35,19 @@ def resize(file):
     img = Image.open(file)
     new_height = 1280
     new_width  = int(new_height * img.width / img.height)
-    resized_img = img.resize((new_width, new_height), Image.ANTIALIAS)
-    resized_img.save(file)
-    return resized_img
+    return img.resize((new_width, new_height), Image.ANTIALIAS)
 
 def list(request):
     form = DocumentForm()
     documents = loadDocument()
     return render(request, 'list.html', {'documents': documents, 'form': form})
 
-def getTargetTypeByTime(img):
-    img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    ret, dst = cv2.threshold(gray, 207, 255, 1)  
-
-    dst1 = dst[84:160, 146:511]
-    dst2 = dst[270:311, 238:391]
-
-    plt.imshow(dst1)
-    plt.show()
-    plt.imshow(dst2)
-    plt.show()
-
-    # erode 적용
-    tick= 2
-    kernel = np.ones((tick, tick), np.uint8)
-    dst1 = cv2.erode(dst1, kernel, iterations=3)  
-    place = 'place:' + pytesseract.image_to_string(dst1, config='--oem 3 --psm 3', lang='kor+eng')
-    time = 'time:' + pytesseract.image_to_string(dst2, config='--oem 3 --psm 6 -c tessedit_char_whitelist=:0123456789')
-    print(time)
-    return time
+def getTargetTypeByTime(egg_time, monster_time):
+    if monster_time.count(":") > 1:
+      return MONSTER
+    elif egg_time.count(":") > 1:
+      return EGG
+    return KNOWN
 
 
 def extractText(request):
@@ -87,68 +64,59 @@ def extractText(request):
             time_calc = time_original
 
             # image resize
-            file = request.FILES['docfile']
-
-            img = resize(file)
-
-            stream = BytesIO()
-            img.save(stream, 'JPEG')
-  
-
-             # find target type by time : egg, monster
-            target_type = getTargetTypeByTime(img)
+            img = resize(request.FILES['docfile'])
 
             # extract text
-            # document = getText(img)
+            document = getText(img)
 
             # find place and time
-            #place = text_within(document,150,80,1000,166).replace("\n", "")
-            #egg_time = text_within(document,200,240,1000,333).replace("\n","")
-            #monster_time = text_within(document,200,690,1000,818).replace("\n","")
-            #egg_time = re.sub('[^0-9:]', '', egg_time)
-            #monster_time = re.sub('[^0-9:]', '', monster_time)
+            place = text_within(document,150,80,1000,166).replace("\n", "")
+            egg_time = text_within(document,200,240,1000,333).replace("\n","")
+            monster_time = text_within(document,200,690,1000,818).replace("\n","")
+            egg_time = re.sub('[^0-9:]', '', egg_time)
+            monster_time = re.sub('[^0-9:]', '', monster_time)
 
-
+            # find target type by time : egg, monster
+            target_type = getTargetTypeByTime(egg_time, monster_time)
 
             # monster name find
-            #if target_type == MONSTER:
-            #    monster_name = text_within(document,0,150,1200,460)
-            #elif target_type == EGG:
-            #    monster_name = EGG
-            #else:
-            #    monster_name = KNOWN
+            if target_type == MONSTER:
+                monster_name = text_within(document,0,150,1200,460)
+            elif target_type == EGG:
+                monster_name = EGG
+            else:
+                monster_name = KNOWN
 
 
             # calculate minutes
-            #time_arr = []
+            time_arr = []
 
-            #if target_type == MONSTER:
-            #    time_arr =  [int(i) for i in monster_time.split(":")]
-            #elif target_type == EGG:
-            #    time_arr =  [int(i) for i in egg_time.split(":")]
-            #    time_calc = time_calc + datetime.timedelta(minutes=45)
-            #time_calc = time_calc + datetime.timedelta(hours=time_arr[0])
-            #time_calc = time_calc + datetime.timedelta(minutes=time_arr[1])
-            #time_calc = time_calc + datetime.timedelta(seconds=time_arr[2])
+            if target_type == MONSTER:
+                time_arr =  [int(i) for i in monster_time.split(":")]
+            elif target_type == EGG:
+                time_arr =  [int(i) for i in egg_time.split(":")]
+                time_calc = time_calc + datetime.timedelta(minutes=45)
+            time_calc = time_calc + datetime.timedelta(hours=time_arr[0])
+            time_calc = time_calc + datetime.timedelta(minutes=time_arr[1])
+            time_calc = time_calc + datetime.timedelta(seconds=time_arr[2])
 
-            #newdoc = Document(docfile = request.FILES['docfile']
-            #                , name=monster_name
-            #                , place=place
-            #                , time_original=time_original
-            #                , time_calc=time_calc
-            #                , time_text=":".join(str(e) for e in time_arr))
+            newdoc = Document(docfile = request.FILES['docfile']
+                            , name=monster_name
+                            , place=place
+                            , time_original=time_original
+                            , time_calc=time_calc
+                            , time_text=":".join(str(e) for e in time_arr))
 
             # duplication check
-            #if len(Document.objects.filter(time_original__gte=datetime.datetime.now()).filter(place=place)) > 0:
-            #    newdoc.dup = "Y"
-            #else:
-            #    newdoc.dup = "N"
+            if len(Document.objects.filter(time_original__gte=datetime.datetime.now()).filter(place=place)) > 0:
+                newdoc.dup = "Y"
+            else:
+                newdoc.dup = "N"
 
-            #newdoc.save()
+            newdoc.save()
             documents = loadDocument()
             form = DocumentForm() # A empty, unbound form
-            #return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc})
-            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':''})
+            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc})
 
 def update(request, id):
   if request.method == 'POST':
