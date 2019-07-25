@@ -24,6 +24,7 @@ KNOWN   = "KNOWN"
 
 def sendMessage():
     my_token = '727599178:AAH_ksTAfbHK7PKt4fJq28Dj91slG3BVPXQ'
+    ###
     bot = telegram.Bot(token = my_token)
     bot.sendMessage(chat_id = '@pangkyogo', text=text_message)
 
