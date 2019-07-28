@@ -1,4 +1,5 @@
-import cv2
+﻿import cv2
+#test
 
 src = cv2.imread(r"C:\Users\LIGS\Desktop\1.jpg", cv2.IMREAD_COLOR)
 
