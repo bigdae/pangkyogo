@@ -27,7 +27,7 @@ from io import BytesIO
 MONSTER = "MONSTER"
 EGG     = "EGG"
 UNKNOWN   = "UNKNOWN"
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
 
 def sendMessage():
     my_token = '727599178:AAH_ksTAfbHK7PKt4fJq28Dj91slG3BVPXQ'
