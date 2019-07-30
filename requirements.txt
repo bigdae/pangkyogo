@@ -6,8 +6,8 @@ google-api-python-client
 google-cloud-vision
 freeze 
 #psycopg2==2.7.1
-dj-database-url
-psycopg2-binary
+#dj-database-url
+#psycopg2-binary
 pytesseract
 opencv-python
 matplotlib
