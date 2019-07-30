@@ -28,8 +28,8 @@ DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
 
 ALLOWED_HOSTS = ['localhost',
-'http://localhost:8000/myapp',
-'http://192.168.0.111:8000/myapp',
+'http://localhost:8000',
+'http://192.168.0.111:8000',
 '192.168.0.111',
 'http://127.0.0.1', 
 'https://pangkyogo.herokuapp.com',

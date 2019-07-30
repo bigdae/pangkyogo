@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
+from django.db.models import Max
 
 MONSTER = "MONSTER"
 EGG     = "EGG"
@@ -35,8 +36,8 @@ def sendMessage():
     bot.sendMessage(chat_id = '@pangkyogo', text=text_message)
 
 def loadDocument():
-    return Document.objects.all()
-    #return Document.objects.filter(time_original__gte=datetime.datetime.now())#.filter(dup='N')
+    distinct = Document.objects.values('place').annotate(max_id=Max('id'))
+    return Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
 
 def resize(file):
     img = Image.open(file)
@@ -47,13 +48,10 @@ def resize(file):
     return resized_img
 
 def findConvertedText(name):
-    try:
-      obj =  DocumentConvert.objects.get(name=name)
-    except DocumentConvert.DoesNotExist: 
-      return name
+    obj =  DocumentConvert.objects.filter(name=name)
       
-    if obj :
-      return obj.name_convert
+    if obj.count() > 0 :
+      return obj[0].name_convert
     return name
 
 def list(request):
@@ -115,8 +113,8 @@ def extractText(request):
               img_name = img[213:400, 128:474]
               img_time = img[697:743, 474:576]
 
-              #plt.imshow(img_time)
-              #plt.show()
+              plt.imshow(img_time)
+              plt.show()
               place = pytesseract.image_to_string(img_place, config='--oem 3 --psm 12', lang='kor+eng')
               time = pytesseract.image_to_string(img_time, config='--oem 3 --psm 6 -c tessedit_char_whitelist=:0123456789', lang='kor')
               name = pytesseract.image_to_string(img_name, config='--oem 3 --psm 6', lang='kor+eng') 
@@ -127,7 +125,10 @@ def extractText(request):
             name = findConvertedText(name)   
 
             # calculate minutes
-            time_arr =  [int(i) for i in time.split(":") if time.count(":") > 1]
+            if time.count(":") > 1:
+              time_arr =  [int(i) for i in time.split(":")]
+            else:
+              time_arr = [0,0,0]
 
             if target_type == EGG:
                 time_calc = time_calc + datetime.timedelta(minutes=45)
@@ -157,13 +158,15 @@ def extractText(request):
 
 def update(request, id):
   if request.method == 'POST':
-
-
     #update convert text
     doc = Document.objects.get(id=id)
     obj, created = DocumentConvert.objects.update_or_create(
       name = doc.name,
       defaults={ 'name_convert':request.POST['name']},
+    )
+    obj, created = DocumentConvert.objects.update_or_create(
+      name = doc.place,
+      defaults={ 'name_convert':request.POST['place']},
     )
 
     id = request.POST['id']
@@ -196,7 +199,7 @@ def update(request, id):
 
 def delete(request, id):
   Document.objects.filter(id=id).delete()
-  return HttpResponseRedirect('/myapp/')
+  return HttpResponseRedirect('/')
 
 def getText(img):
   b = io.BytesIO()
