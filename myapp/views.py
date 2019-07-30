@@ -127,7 +127,7 @@ def extractText(request):
             name = findConvertedText(name)   
 
             # calculate minutes
-            time_arr =  [int(i) for i in time.split(":")]
+            time_arr =  [int(i) for i in time.split(":") if time.count(":") > 1]
 
             if target_type == EGG:
                 time_calc = time_calc + datetime.timedelta(minutes=45)
