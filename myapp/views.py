@@ -30,6 +30,7 @@ EGG     = "EGG"
 UNKNOWN   = "UNKNOWN"
 #pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
 
+
 def sendMessage():
     my_token = '727599178:AAH_ksTAfbHK7PKt4fJq28Dj91slG3BVPXQ'
     bot = telegram.Bot(token = my_token)
@@ -113,8 +114,8 @@ def extractText(request):
               img_name = img[213:400, 128:474]
               img_time = img[697:743, 474:576]
 
-              plt.imshow(img_time)
-              plt.show()
+              #plt.imshow(img_time)
+              #plt.show()
               place = pytesseract.image_to_string(img_place, config='--oem 3 --psm 12', lang='kor+eng')
               time = pytesseract.image_to_string(img_time, config='--oem 3 --psm 6 -c tessedit_char_whitelist=:0123456789', lang='kor')
               name = pytesseract.image_to_string(img_name, config='--oem 3 --psm 6', lang='kor+eng') 

@@ -8,6 +8,3 @@ google-cloud-vision
 freeze 
 pytesseract
 matplotlib
-#psycopg2==2.7.1
-#dj-database-url
-#psycopg2-binary
