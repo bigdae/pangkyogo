@@ -8,14 +8,24 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>pokemon</title>
     <script>
 
 
       function upload(){
-        document.form.action = "{% url "extract" %}";
-        document.form.lastmodified.value = formatDate(new Date(document.form.docfile.files[0].lastModified))
-        documet.form.submit()
+        if ( document.form.region.value == "") {
+          alert("지역을 선택해 주세요.")
+          return;
+        }
+
+        if ( document.form.docfile.files.length > 0) {
+          btn = document.getElementById("id_upload");
+          btn.disabled = true;
+          btn.value = "uploading...";
+          document.form.action = "{% url "extract" %}";
+          document.form.lastmodified.value = formatDate(new Date(document.form.docfile.files[0].lastModifiedDate));
+          document.form.submit();
+        }
       }
 
       function save(url){
@@ -31,6 +41,11 @@
         var s = date.getSeconds();
         return date.getFullYear()+'-'+(m>9?m:'0'+m)+'-'+(d>9?d:'0'+d)+' '+(h>9?h:'0'+h)+':'+(i>9?i:'0'+i)+':'+(s>9?s:'0'+s);
       }      
+
+      function retrieve(){
+        document.form.action = "{% url "list" %}"
+        document.form.submit()
+      }
     </script>
 
     <style>
@@ -40,17 +55,66 @@
   <body class="bg-light">
 
       <div class="container">
+        <form name="form" action="{% url "extract" %}" method="post" enctype="multipart/form-data">
           <div class="py-5 text-center">
             <a href= "{% url "list" %}">
             <img class="d-block mx-auto mb-4" src="https://assets.pokemon.com/assets/cms2/img/misc/gus/buttons/logo-pokemon-79x45.png">
           </a>
             <h2>Pokemon Alert Manager</h2>
+            <select name="region" id="id_region" class="form-control" onchange="retrieve()">
+              <option value="">전체</option>
+              <option value="1">판교</option>
+              <option value="2">백현</option>
+              <option value="3">서현</option>
+              <option value="4">미금</option>
+              <option value="5">정자</option>
+              <option value="6">서판교</option>
+              <option value="7">수내</option>
+            </select>
           </div>
+          <script>
+            document.form.region.value = "{{region}}"
+          </script>
+
+          {% if newdoc %}
+          <div class="col-md-8 order-md-1">
+            <h4 class="mb-3 text-center">추출정보 확인</h4>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="name">이름</label>
+                <input name="name" type="text" class="form-control" id="name" placeholder="" value="{{ newdoc.name_origin}}" required>
+                <div class="invalid-feedback">
+                  이름은 필수값입니다.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="place">장소</label>
+                <input name="place" type="text" class="form-control" id="place" placeholder="" value="{{ newdoc.place }}" required>
+                <div class="invalid-feedback">
+                  장소는 필수값입니다.
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="time_text">종료시간</label>
+                <input name="time_text" type="text" class="form-control" id="time_text" placeholder="" value="{{ newdoc.time_text }}" required>
+                <div class="invalid-feedback">
+                  종료 시간 필수값입니다.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <input type="hidden" name="id" value="{{newdoc.id}}"/>
+          <p><input type="submit" value="저장" class="btn btn-primary btn-lg btn-block"  onclick="save('{% url "update" newdoc.id %}')"/></p>
+
+          {% endif %}
+
           <div class="row">    
             <table class="table">
                     <thead>
                       <tr>
                         <th scope="col">이름</th>
+                        <th scope="col">구역</th>
                         <th scope="col">장소</th>
                         <th scope="col">시간</th>
                         <th scope="col">삭제</th>
@@ -62,9 +126,33 @@
                       {% for document in documents %}
                       <tr>
                           <th scope="row"><a href="{{ document.docfile.url }}">{{ document.name }}</a></th>
+                          <td>
+                              {% if document.region == "1" %}
+                              판교
+                              {% elif document.region == "2" %}
+                              백현
+                              {% elif document.region == "3" %}
+                              서현
+                              {% elif document.region == "4" %}
+                              미금
+                              {% elif document.region == "5" %}
+                              정자
+                              {% elif document.region == "6" %}
+                              서판교
+                              {% elif document.region == "7" %}
+                              수내
+                              {% endif %}
+                          </td>
                           <td>{{ document.place }}</td>
                           <td>{{ document.time_calc|date:'H:i:s' }}</td>
-                          <td><a href="{% url 'update' document.id %}">[수정]</a><a href="{% url 'delete' document.id %}">[삭제]</a></td>
+                          <td><a href="{% url 'update' document.id%}">[수정]</a>
+                            <!--
+                            -->
+                            <a href="{% url 'delete' document.id %}">[삭제]</a>
+                            <!--
+                              -->
+
+                            </td>
                       </tr>
                       {% endfor %}
                     {% else %}
@@ -73,61 +161,27 @@
                       </tr>
                     {% endif %}
 
-                      </tbody>
-                  </table>        
+                  </tbody>
+            </table>        
+          </div>
 
-            <!-- Upload form. Note enctype attribute! -->
-            <form name="form" action="{% url "extract" %}" method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <p>{{ form.non_field_errors }}</p>
+          <!-- Upload form. Note enctype attribute! -->
+          {% csrf_token %}
+          <p>{{ form.non_field_errors }}</p>
 
-                <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+          <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
 
-                <p>
-                    {{ form.docfile.errors }}
-                    {{ form.docfile }}
-                </p>
-                <p><input type="submit" value="업로드" onclick="upload()" class="btn btn-primary"/></p>
-                {% if dup == 'Y' %} 
-                <p>기존에 등록된 정보가 있습니다.</p>
-                {% endif %}
-                {% if newdoc %}
-
-
-                <div class="col-md-8 order-md-1">
-                  <h4 class="mb-3 text-center">추출정보 확인</h4>
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label for="name">이름</label>
-                      <input name="name" type="text" class="form-control" id="name" placeholder="" value="{{ newdoc.name_origin}}" required>
-                      <div class="invalid-feedback">
-                        이름은 필수값입니다.
-                      </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label for="place">장소</label>
-                      <input name="place" type="text" class="form-control" id="place" placeholder="" value="{{ newdoc.place }}" required>
-                      <div class="invalid-feedback">
-                        장소는 필수값입니다.
-                      </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label for="time_text">종료시간</label>
-                      <input name="time_text" type="text" class="form-control" id="time_text" placeholder="" value="{{ newdoc.time_text }}" required>
-                      <div class="invalid-feedback">
-                        종료 시간 필수값입니다.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <input type="hidden" name="id" value="{{newdoc.id}}"/>
-                <p><input type="submit" value="저장" class="btn btn-primary btn-lg btn-block"  onclick="save('{% url "update" newdoc.id %}')"/></p>
-
-                {% endif %}
-                <input type="hidden" name="lastmodified" value=""/>
-            </form>
-        </div>
+          <p>
+              {{ form.docfile.errors }}
+              {{ form.docfile }}
+          </p>
+          <p><input type="button" id="id_upload" value="업로드" onclick="upload()" class="btn btn-primary"/></p>
+          {% if dup == 'Y' %} 
+          <p>기존에 등록된 정보가 있습니다.</p>
+          {% endif %}
+          <input type="hidden" name="lastmodified" value=""/>
+      </form>
+      </div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -135,4 +189,3 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   </body>
 </html>
-

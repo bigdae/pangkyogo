@@ -1,9 +1,7 @@
 from django.shortcuts import render
-
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
 from myapp.models import Document
 from myapp.models import DocumentConvert
 from myapp.forms import DocumentForm
@@ -36,9 +34,15 @@ def sendMessage():
     bot = telegram.Bot(token = my_token)
     bot.sendMessage(chat_id = '@pangkyogo', text=text_message)
 
-def loadDocument():
+def loadDocument(region):
+    result = None
     distinct = Document.objects.values('place').annotate(max_id=Max('id'))
-    return Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
+    #return Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
+    if region != "":
+      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
+    else:
+      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
+    return result
 
 def resize(file):
     img = Image.open(file)
@@ -56,9 +60,16 @@ def findConvertedText(name):
     return name
 
 def list(request):
+    region = None
+    if request.method == 'POST' and 'region' in request.POST:
+      region = request.POST['region']
+    else:
+      region = ""
+
+    print(region)
     form = DocumentForm()
-    documents = loadDocument()
-    return render(request, 'list.html', {'documents': documents, 'form': form})
+    documents = loadDocument(region)
+    return render(request, 'list.html', {'documents': documents, 'form': form, 'region': region})
 
 def getTargetTypeByTime(img):
     img = img[270:311, 238:391]
@@ -73,6 +84,7 @@ def extractText(request):
     # Handle file upload
     if request.method == 'POST':
         form = DocumentForm(request.POST, request.FILES)
+        region = request.POST['region']
 
         if form.is_valid():
             # variable initial
@@ -138,6 +150,7 @@ def extractText(request):
             time_calc = time_calc + datetime.timedelta(seconds=time_arr[2])
 
             newdoc  = Document(docfile = request.FILES['docfile']
+                            , region=region
                             , name=name
                             , name_origin = name
                             , place=place
@@ -152,9 +165,9 @@ def extractText(request):
                 newdoc.dup = "N"
 
             newdoc.save()
-            documents = loadDocument()
+            documents = loadDocument(region)
             form = DocumentForm() # A empty, unbound form
-            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc})
+            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region})
 
 
 def update(request, id):
@@ -189,13 +202,15 @@ def update(request, id):
     document.time_text = request.POST['time_text']
     print(document.save())
     newdoc = None
+    region = document.region
   else:
     form = DocumentForm()
     newdoc = Document.objects.get(id=id)
+    region = newdoc.region
  
   form = DocumentForm()
-  documents = loadDocument()
-  return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc})
+  documents = loadDocument(region)
+  return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region})
 
 
 def delete(request, id):
