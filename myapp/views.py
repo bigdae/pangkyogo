@@ -69,7 +69,7 @@ def list(request):
     print(region)
     form = DocumentForm()
     documents = loadDocument(region)
-    text = "[레이드 제보]"
+    text = "[레이드 제보]\n"
     for i in documents:
       text = text + i.time_calc.strftime('%H:%M' ) + " "
       regionText = ""
