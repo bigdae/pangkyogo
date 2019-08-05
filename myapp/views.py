@@ -43,7 +43,14 @@ def loadDocument(region):
     else:
       result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
       #result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
-    return result
+
+    text = "[레이드 제보]\n"
+    for i in result:
+      text = text + i.time_calc.strftime('%H:%M' ) + " "
+      text = text + i.get_region_display() + " "
+      text = text + i.place + "\n"
+      
+    return result, text
 
 def resize(file):
     img = Image.open(file)
@@ -69,7 +76,7 @@ def list(request):
 
     print(region)
     form = DocumentForm()
-    documents = loadDocument(region)
+    documents, text = loadDocument(region)
     text = "[레이드 제보]\n"
     for i in documents:
       text = text + i.time_calc.strftime('%H:%M' ) + " "
@@ -172,9 +179,9 @@ def extractText(request):
                 newdoc.dup = "N"
 
             newdoc.save()
-            documents = loadDocument(region)
+            document, text = loadDocument(region)
             form = DocumentForm() # A empty, unbound form
-            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region})
+            return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region, 'text': text})
 
 
 def update(request, id):
@@ -216,8 +223,8 @@ def update(request, id):
     region = newdoc.region
  
   form = DocumentForm()
-  documents = loadDocument(region)
-  return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region})
+  documents, text = loadDocument(region)
+  return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region, 'text' : text})
 
 
 def delete(request, id):
