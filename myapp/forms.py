@@ -5,4 +5,4 @@ class DocumentForm(forms.Form):
     docfile = forms.FileField(
         label=''
     )
-    docfile.widget.attrs.update({'class' : 'btn btn-secondary'})
+    docfile.widget.attrs.update({'class' : 'btn btn-secondary', 'onclick':'checkRegionSelected()'})

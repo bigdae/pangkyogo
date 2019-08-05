@@ -46,6 +46,36 @@
         document.form.action = "{% url "list" %}"
         document.form.submit()
       }
+
+      function checkRegionSelected(){
+        if (document.form.region.value == "") {
+          alert("구역을 선택해 주세요")
+          event.preventDefault()
+          return false
+        }
+      }
+
+      function copyToClipboard(text) {
+        if (window.clipboardData && window.clipboardData.setData) {
+            // IE specific code path to prevent textarea being shown while dialog is visible.
+            return clipboardData.setData("Text", text); 
+
+        } else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+            var textarea = document.createElement("textarea");
+            textarea.textContent = text;
+            textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+            } catch (ex) {
+                console.warn("Copy to clipboard failed.", ex);
+                return false;
+            } finally {
+                document.body.removeChild(textarea);
+            }
+        }
+      }      
     </script>
 
     <style>
@@ -80,6 +110,10 @@
           <div class="col-md-8 order-md-1">
             <h4 class="mb-3 text-center">추출정보 확인</h4>
             <div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="name">이미지링크</label>
+                <a href="{{ newdoc.docfile.url }}">{{ newdoc.name }}</a>
+              </div>
               <div class="col-md-6 mb-3">
                 <label for="name">이름</label>
                 <input name="name" type="text" class="form-control" id="name" placeholder="" value="{{ newdoc.name_origin}}" required>
@@ -175,7 +209,8 @@
               {{ form.docfile.errors }}
               {{ form.docfile }}
           </p>
-          <p><input type="button" id="id_upload" value="업로드" onclick="upload()" class="btn btn-primary"/></p>
+          <p><input type="button" id="id_upload" value="업로드" onclick="upload()" class="btn btn-primary"/>
+          <input type="button" id="id_upload" value="텍스트 복사" onclick="copyToClipboard(`{{text}}`)" class="btn btn-primary"/></p>
           {% if dup == 'Y' %} 
           <p>기존에 등록된 정보가 있습니다.</p>
           {% endif %}

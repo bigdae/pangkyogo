@@ -69,7 +69,29 @@ def list(request):
     print(region)
     form = DocumentForm()
     documents = loadDocument(region)
-    return render(request, 'list.html', {'documents': documents, 'form': form, 'region': region})
+    text = "[레이드 제보]"
+    for i in documents:
+      text = text + i.time_calc.strftime('%H:%M' ) + " "
+      regionText = ""
+      if i.region == "1" :
+        regionText = "판교"
+      elif i.region == "2" :
+        regionText = "백현"
+      elif i.region == "3" :
+        regionText = "서현"
+      elif i.region == "4" :
+        regionText = "미금"
+      elif i.region == "5" :
+        regionText = "정자"
+      elif i.region == "6" :
+        regionText = "서판교"
+      elif i.region == "7" :
+        regionText = "수내"
+
+      text = text + regionText + " "
+      text = text + i.place + "\n"
+
+    return render(request, 'list.html', {'documents': documents, 'form': form, 'region': region, 'text':text})
 
 def getTargetTypeByTime(img):
     img = img[270:311, 238:391]
