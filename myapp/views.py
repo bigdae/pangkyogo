@@ -39,9 +39,9 @@ def loadDocument(region):
     distinct = Document.objects.values('place').annotate(max_id=Max('id'))
     #return Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
     if region != "":
-      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
+      result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
     else:
-      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
+      result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
     return result
 
 def resize(file):
