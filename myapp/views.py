@@ -26,7 +26,7 @@ from django.db.models import Max
 MONSTER = "MONSTER"
 EGG     = "EGG"
 UNKNOWN   = "UNKNOWN"
-#pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
 
 
 def sendMessage():
@@ -179,7 +179,7 @@ def extractText(request):
                 newdoc.dup = "N"
 
             newdoc.save()
-            document, text = loadDocument(region)
+            documents, text = loadDocument(region)
             form = DocumentForm() # A empty, unbound form
             return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region, 'text': text})
 
