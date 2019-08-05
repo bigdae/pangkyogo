@@ -37,11 +37,12 @@ def sendMessage():
 def loadDocument(region):
     result = None
     distinct = Document.objects.values('place').annotate(max_id=Max('id'))
-    #return Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
     if region != "":
-      result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
+      #result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
+      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()]).filter(region=region)
     else:
-      result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
+      #result = Document.objects.filter(time_calc__gte=datetime.datetime.now()).filter(id__in=[i['max_id'] for i in distinct.all()])
+      result = Document.objects.filter(id__in=[i['max_id'] for i in distinct.all()])
     return result
 
 def resize(file):
@@ -72,23 +73,7 @@ def list(request):
     text = "[레이드 제보]\n"
     for i in documents:
       text = text + i.time_calc.strftime('%H:%M' ) + " "
-      regionText = ""
-      if i.region == "1" :
-        regionText = "판교"
-      elif i.region == "2" :
-        regionText = "백현"
-      elif i.region == "3" :
-        regionText = "서현"
-      elif i.region == "4" :
-        regionText = "미금"
-      elif i.region == "5" :
-        regionText = "정자"
-      elif i.region == "6" :
-        regionText = "서판교"
-      elif i.region == "7" :
-        regionText = "수내"
-
-      text = text + regionText + " "
+      text = text + i.get_region_display() + " "
       text = text + i.place + "\n"
 
     return render(request, 'list.html', {'documents': documents, 'form': form, 'region': region, 'text':text})

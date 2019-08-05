@@ -4,14 +4,11 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
     <title>pokemon</title>
     <script>
-
-
       function upload(){
         if ( document.form.region.value == "") {
           alert("지역을 선택해 주세요.")
@@ -56,6 +53,7 @@
       }
 
       function copyToClipboard(text) {
+        alert(text);
         if (window.clipboardData && window.clipboardData.setData) {
             // IE specific code path to prevent textarea being shown while dialog is visible.
             return clipboardData.setData("Text", text); 
@@ -75,7 +73,6 @@
                 document.body.removeChild(textarea);
             }
         }
-        alert("복사완료");
       }      
     </script>
 
@@ -92,16 +89,7 @@
             <img class="d-block mx-auto mb-4" src="https://assets.pokemon.com/assets/cms2/img/misc/gus/buttons/logo-pokemon-79x45.png">
           </a>
             <h2>Pokemon Alert Manager</h2>
-            <select name="region" id="id_region" class="form-control" onchange="retrieve()">
-              <option value="">전체</option>
-              <option value="1">판교</option>
-              <option value="2">백현</option>
-              <option value="3">서현</option>
-              <option value="4">미금</option>
-              <option value="5">정자</option>
-              <option value="6">서판교</option>
-              <option value="7">수내</option>
-            </select>
+            {{ form.region }}
           </div>
           <script>
             document.form.region.value = "{{region}}"
@@ -157,37 +145,14 @@
                     </thead>
                     <tbody>                      
                     {% if documents %}
-
                       {% for document in documents %}
                       <tr>
                           <th scope="row"><a href="{{ document.docfile.url }}">{{ document.name }}</a></th>
-                          <td>
-                              {% if document.region == "1" %}
-                              판교
-                              {% elif document.region == "2" %}
-                              백현
-                              {% elif document.region == "3" %}
-                              서현
-                              {% elif document.region == "4" %}
-                              미금
-                              {% elif document.region == "5" %}
-                              정자
-                              {% elif document.region == "6" %}
-                              서판교
-                              {% elif document.region == "7" %}
-                              수내
-                              {% endif %}
-                          </td>
+                          <td> {{document.get_region_display}}</td>
                           <td>{{ document.place }}</td>
                           <td>{{ document.time_calc|date:'H:i:s' }}</td>
-                          <td><a href="{% url 'update' document.id%}">[수정]</a>
-                            <!--
-                            -->
-                            <a href="{% url 'delete' document.id %}">[삭제]</a>
-                            <!--
-                              -->
-
-                            </td>
+                          <td width="100"><a href="{% url 'update' document.id%}">[수정]</a>
+                            <a href="{% url 'delete' document.id %}">[삭제]</a></td>
                       </tr>
                       {% endfor %}
                     {% else %}
