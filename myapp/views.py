@@ -26,7 +26,7 @@ from django.db.models import Max
 MONSTER = "MONSTER"
 EGG     = "EGG"
 UNKNOWN   = "UNKNOWN"
-pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'
 
 
 def sendMessage():
