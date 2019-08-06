@@ -89,7 +89,12 @@
             <img class="d-block mx-auto mb-4" src="https://assets.pokemon.com/assets/cms2/img/misc/gus/buttons/logo-pokemon-79x45.png">
           </a>
             <h2>Pokemon Alert Manager</h2>
-            {{ form.region }}
+
+              <div class="col-md-12 mb-3">
+                <label for="name">구역</label>
+                {{ form.region }}
+              </div>
+
           </div>
           <script>
             document.form.region.value = "{{region}}"
