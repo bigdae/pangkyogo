@@ -3,3 +3,5 @@ media/
 *.pyc
 *.sqlite3
 *.ipynb
+__pycache__/
+*.jpg
