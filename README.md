@@ -2,7 +2,7 @@
 
 url : https://pangkyogo.herokuapp.com
 
-# 설명
+# description
 게임 스크린샷의 문자를 읽어서 출몰시간을 계산
 
 # Dependency library
