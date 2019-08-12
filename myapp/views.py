@@ -61,7 +61,7 @@ def resize(file):
     return resized_img
 
 def findConvertedText(name):
-    obj =  DocumentConvert.objects.filter(name=name)
+    obj =  DocumentConvert.objects.filter(name=name.replace("\n", ""))
 
     if obj.count() > 0 :
       return obj[0].name_convert
@@ -190,11 +190,11 @@ def update(request, id):
     #update convert text
     doc = Document.objects.get(id=id)
     obj, created = DocumentConvert.objects.update_or_create(
-      name = doc.name,
+      name = doc.name.replace("\n", ""),
       defaults={ 'name_convert':request.POST['name']},
     )
     obj, created = DocumentConvert.objects.update_or_create(
-      name = doc.place,
+      name = doc.place.replace("\n", ""),
       defaults={ 'name_convert':request.POST['place']},
     )
 
