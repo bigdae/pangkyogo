@@ -31,7 +31,8 @@ ALLOWED_HOSTS = ['localhost',
 'http://localhost:8000',
 'http://192.168.0.111:8000',
 '192.168.0.111',
-'http://127.0.0.1', 
+'http://127.0.0.1',
+'127.0.0.1',
 'https://pangkyogo.herokuapp.com',
 'https://bigdae2.iptime.org:8000',
 'http://bigdae2.iptime.org:8000',
@@ -68,7 +69,7 @@ MIDDLEWARE_CLASSES = (
 SILENCED_SYSTEM_CHECKS = [
     'admin.E408',
     'admin.E409',
-    'admin.E410',    
+    'admin.E410',
 
 ]
 
@@ -132,7 +133,6 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_URL = '/static/'
 
-#import dj_database_url 
-#db_from_env = dj_database_url.config(conn_max_age=500) 
+#import dj_database_url
+#db_from_env = dj_database_url.config(conn_max_age=500)
 #DATABASES['default'].update(db_from_env)
-

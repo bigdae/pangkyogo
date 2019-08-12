@@ -16,7 +16,7 @@ import re
 from django.core.files.storage import FileSystemStorage
 import time
 import pytesseract
-import cv2 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -49,7 +49,7 @@ def loadDocument(region):
       text = text + i.time_calc.strftime('%H:%M' ) + " "
       text = text + i.get_region_display() + " "
       text = text + i.place + "\n"
-      
+
     return result, text
 
 def resize(file):
@@ -62,7 +62,7 @@ def resize(file):
 
 def findConvertedText(name):
     obj =  DocumentConvert.objects.filter(name=name)
-      
+
     if obj.count() > 0 :
       return obj[0].name_convert
     return name
@@ -114,9 +114,9 @@ def extractText(request):
             stream = BytesIO()
             img.save(stream, 'JPEG')
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-            img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)       
-            _, img = cv2.threshold(img, 207, 255, 1)      
-  
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+            _, img = cv2.threshold(img, 207, 255, 1)
+
              # find target type by time : egg, monster
             target_type = getTargetTypeByTime(img)
 
@@ -127,7 +127,7 @@ def extractText(request):
               # erode 적용
               tick= 2
               kernel = np.ones((tick, tick), np.uint8)
-              img_place = cv2.erode(img_place, kernel, iterations=3) 
+              img_place = cv2.erode(img_place, kernel, iterations=3)
 
               #plt.imshow(img_place)
               #plt.show()
@@ -144,16 +144,17 @@ def extractText(request):
               #plt.show()
               place = pytesseract.image_to_string(img_place, config='--oem 3 --psm 12', lang='kor+eng')
               time = pytesseract.image_to_string(img_time, config='--oem 3 --psm 6 -c tessedit_char_whitelist=:0123456789', lang='kor')
-              name = pytesseract.image_to_string(img_name, config='--oem 3 --psm 6', lang='kor+eng') 
+              name = pytesseract.image_to_string(img_name, config='--oem 3 --psm 6', lang='kor+eng')
             else:
-              name = UNKNOWN       
+              name = UNKNOWN
 
-            place = findConvertedText(place)   
-            name = findConvertedText(name)   
+            place = findConvertedText(place)
+            name = findConvertedText(name)
 
             # calculate minutes
+            print(time)
             if time.count(":") > 1:
-              time_arr =  [int(i) for i in time.split(":")]
+              time_arr =  [int(re.sub('^$', '0', i)) for i in time.split(":")]
             else:
               time_arr = [0,0,0]
 
@@ -200,7 +201,7 @@ def update(request, id):
     id = request.POST['id']
     name = request.POST['name'].upper()
     time_calc = Document.objects.get(id=id).time_original
-    
+
     time_text = request.POST['time_text']
     time_arr =  [int(i) for i in time_text.split(":")]
     if name.startswith("EGG"):
@@ -221,7 +222,7 @@ def update(request, id):
     form = DocumentForm()
     newdoc = Document.objects.get(id=id)
     region = newdoc.region
- 
+
   form = DocumentForm()
   documents, text = loadDocument(region)
   return render(request, 'list.html', {'documents': documents, 'form': form, 'newdoc':newdoc, 'region' : region, 'text' : text})
@@ -238,9 +239,9 @@ def getText(img):
   client = vision.ImageAnnotatorClient()
   image = types.Image(content=img_bytes)
   response = client.document_text_detection(image=image)
-  return response.full_text_annotation 
+  return response.full_text_annotation
 
-def text_within(document,x1,y1,x2,y2): 
+def text_within(document,x1,y1,x2,y2):
   text=""
   for page in document.pages:
     for block in page.blocks:
@@ -253,11 +254,11 @@ def text_within(document,x1,y1,x2,y2):
             max_y=max(symbol.bounding_box.vertices[0].y,symbol.bounding_box.vertices[1].y,symbol.bounding_box.vertices[2].y,symbol.bounding_box.vertices[3].y)
             if(min_x >= x1 and max_x <= x2 and min_y >= y1 and max_y <= y2):
               text+=symbol.text
-              if(symbol.property.detected_break.type==1 or 
+              if(symbol.property.detected_break.type==1 or
                 symbol.property.detected_break.type==3):
                 text+=' '
               if(symbol.property.detected_break.type==2):
                 text+='\t'
               if(symbol.property.detected_break.type==5):
                 text+='\n'
-  return text    
+  return text
